@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { posts } from '../data/posts'
-import PostCard from '../components/PostCard'
+import { posts } from '../../data/posts'
+import PostCard from '../../components/PostCard'
 
-export const Route = createFileRoute('/posts')({
+export const Route = createFileRoute('/posts/')({
   component: PostsPage,
 })
 
