@@ -182,6 +182,52 @@ h6 {
   border-color: var(--color-border-hover);
 }
 
+/* Marquee */
+.marquee {
+  position: relative;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent 0%, black 12%, black 88%, transparent 100%);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 3.5rem;
+  animation: marquee-scroll 28s linear infinite;
+  align-items: center;
+}
+
+.marquee-group {
+  display: flex;
+  gap: 3.5rem;
+  align-items: center;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee-logo {
+  height: 60px;
+  width: auto;
+  opacity: 0.95;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.marquee-logo:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;

@@ -1,31 +1,39 @@
 import type { NewsItem } from '../data/news'
 import { ExternalLink } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 interface NewsCardProps {
     item: NewsItem
     isLast?: boolean
+    index?: number
 }
 
-export default function NewsCard({ item, isLast = false }: NewsCardProps) {
+export default function NewsCard({ item, isLast = false, index = 0 }: NewsCardProps) {
     const formattedDate = new Date(item.date).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
     })
 
     return (
-        <div className="relative pl-8 pb-6 group">
+        <motion.div
+            className="relative pl-10 pb-8 group"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true, margin: '-10% 0px -10% 0px' }}
+        >
             {/* Timeline line */}
             {!isLast && (
-                <div className="absolute left-[11px] top-6 bottom-0 w-px bg-cyan-500/30" />
+                <div className="absolute left-[13px] top-7 bottom-0 w-px bg-cyan-500/25" />
             )}
 
             {/* Timeline dot */}
-            <div className="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-[var(--color-bg)] border-2 border-cyan-500 flex items-center justify-center group-hover:border-cyan-400 transition-colors">
-                <div className="w-2 h-2 rounded-full bg-cyan-500 group-hover:bg-cyan-300 transition-colors" />
+            <div className="absolute left-0 top-2 w-7 h-7 rounded-full bg-[var(--color-bg)] border-2 border-cyan-500 flex items-center justify-center group-hover:border-cyan-300 transition-colors">
+                <div className="w-2.5 h-2.5 rounded-full bg-cyan-500 group-hover:bg-cyan-300 transition-colors" />
             </div>
 
             {/* Content */}
-            <div className="space-y-1">
+            <div className="glass-card rounded-2xl p-4 sm:p-5 space-y-1">
                 {/* Date */}
                 <time
                     dateTime={item.date}
@@ -62,6 +70,6 @@ export default function NewsCard({ item, isLast = false }: NewsCardProps) {
                     </div>
                 )}
             </div>
-        </div>
+        </motion.div>
     )
 }
