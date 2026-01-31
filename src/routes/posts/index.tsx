@@ -8,14 +8,15 @@ export const Route = createFileRoute('/posts/')({
 
 function PostsPage() {
   return (
-    <main className="min-h-screen bg-[var(--color-bg)]">
+    <main className="min-h-screen bg-[var(--color-bg)] pt-20">
       {/* Header */}
       <section className="section pb-8">
         <div className="container">
-          <div className="max-w-2xl space-y-3">
-            <p className="text-cyan-400 font-semibold tracking-wider uppercase text-sm">
+          <div className="max-w-2xl space-y-4">
+            <span className="uppercase-label flex items-center gap-3">
+              <span className="w-6 h-px bg-[var(--color-border-strong)]" />
               Writing & Research
-            </p>
+            </span>
             <h1 className="text-headline">Posts</h1>
             <p className="text-body-lg">
               Thoughts on research, machine learning, and the intersection of
@@ -25,10 +26,15 @@ function PostsPage() {
         </div>
       </section>
 
+      {/* Divider */}
+      <div className="container">
+        <hr className="section-divider" />
+      </div>
+
       {/* Posts grid */}
-      <section className="section pt-0">
+      <section className="section pt-8">
         <div className="container">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {posts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
@@ -36,7 +42,7 @@ function PostsPage() {
 
           {posts.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-[var(--color-text-muted)]">No posts yet. Check back soon!</p>
+              <p className="text-[var(--color-text-muted)] font-mono text-sm">No posts yet. Check back soon.</p>
             </div>
           )}
         </div>

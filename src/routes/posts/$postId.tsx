@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { getPostById } from '../../data/posts'
 import { Link } from '@tanstack/react-router'
-import { ArrowLeft, Calendar, ExternalLink } from 'lucide-react'
+import { ArrowLeft, ExternalLink } from 'lucide-react'
 
 export const Route = createFileRoute('/posts/$postId')({
   component: PostDetailPage,
@@ -13,7 +13,7 @@ function PostDetailPage() {
 
   if (!post) {
     return (
-      <main className="min-h-screen bg-[var(--color-bg)]">
+      <main className="min-h-screen bg-[var(--color-bg)] pt-20">
         <section className="section">
           <div className="container">
             <div className="max-w-2xl mx-auto text-center">
@@ -21,7 +21,7 @@ function PostDetailPage() {
               <p className="text-[var(--color-text-muted)] mb-6">
                 The post you're looking for doesn't exist.
               </p>
-              <Link to="/posts" className="btn btn-primary">
+              <Link to="/posts" className="btn btn-outline">
                 <ArrowLeft className="w-4 h-4" />
                 Back to Posts
               </Link>
@@ -34,19 +34,19 @@ function PostDetailPage() {
 
   const formattedDate = new Date(post.date).toLocaleDateString('en-US', {
     year: 'numeric',
-    month: 'long',
+    month: 'short',
     day: 'numeric',
   })
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg)]">
+    <main className="min-h-screen bg-[var(--color-bg)] pt-20">
       <article className="section">
         <div className="container">
           <div className="max-w-2xl mx-auto">
             {/* Back link */}
             <Link
               to="/posts"
-              className="inline-flex items-center gap-2 text-sm text-[var(--color-text-muted)] hover:text-white mb-8"
+              className="inline-flex items-center gap-2 font-mono text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors mb-8"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Posts
@@ -60,9 +60,9 @@ function PostDetailPage() {
                   {post.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="px-2 py-0.5 text-xs font-medium rounded-full bg-cyan-500/15 text-cyan-400 border border-cyan-500/20"
+                      className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-text-subtle)]"
                     >
-                      {tag}
+                      [{tag}]
                     </span>
                   ))}
                 </div>
@@ -70,15 +70,14 @@ function PostDetailPage() {
 
               <h1 className="text-headline mb-4">{post.title}</h1>
 
-              <div className="flex items-center gap-2 text-sm text-[var(--color-text-muted)]">
-                <Calendar className="w-4 h-4" />
+              <div className="font-mono text-sm text-[var(--color-text-subtle)]">
                 <time dateTime={post.date}>{formattedDate}</time>
               </div>
             </header>
 
             {/* Featured image */}
             {post.image && (
-              <div className="mb-8 rounded-xl overflow-hidden">
+              <div className="mb-8 overflow-hidden border border-[var(--color-border)]">
                 <img
                   src={post.image}
                   alt={post.title}
@@ -89,22 +88,28 @@ function PostDetailPage() {
 
             {/* Content */}
             <div
-              className="prose prose-invert prose-cyan max-w-none"
+              className="prose prose-invert prose-zinc max-w-none
+                prose-headings:font-mono prose-headings:font-semibold
+                prose-p:text-[var(--color-text-muted)] prose-p:leading-relaxed
+                prose-a:text-[var(--color-primary)] prose-a:no-underline hover:prose-a:opacity-80
+                prose-code:font-mono prose-code:text-sm
+                prose-pre:bg-[var(--color-surface)] prose-pre:border prose-pre:border-[var(--color-border)]
+              "
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
 
             {/* Links */}
             {post.links && post.links.length > 0 && (
-              <div className="mt-8 pt-6 border-t border-white/10">
-                <h2 className="text-lg font-semibold mb-4">Related Links</h2>
-                <div className="flex flex-wrap gap-3">
+              <div className="mt-8 pt-6 border-t border-[var(--color-border)]">
+                <h2 className="font-mono text-sm font-semibold mb-4">Related Links</h2>
+                <div className="flex flex-wrap gap-4">
                   {post.links.map((link) => (
                     <a
                       key={link.url}
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-sm text-cyan-400 hover:text-cyan-300"
+                      className="inline-flex items-center gap-1.5 font-mono text-sm text-[var(--color-primary)] hover:opacity-80 transition-opacity"
                     >
                       {link.label}
                       <ExternalLink className="w-3 h-3" />

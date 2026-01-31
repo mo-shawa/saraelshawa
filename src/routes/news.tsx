@@ -1,4 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useRef } from 'react'
+import { motion, useScroll } from 'framer-motion'
 import { newsItems } from '../data/news'
 import NewsCard from '../components/NewsCard'
 
@@ -7,15 +9,23 @@ export const Route = createFileRoute('/news')({
 })
 
 function NewsPage() {
+  const timelineRef = useRef<HTMLDivElement>(null)
+  
+  const { scrollYProgress } = useScroll({
+    target: timelineRef,
+    offset: ['start 70%', 'end 50%'],
+  })
+
   return (
-    <main className="min-h-screen bg-[var(--color-bg)]">
+    <main className="min-h-screen bg-[var(--color-bg)] pt-20">
       {/* Header */}
       <section className="section pb-8">
         <div className="container">
-          <div className="max-w-2xl space-y-3">
-            <p className="text-cyan-400 font-semibold tracking-wider uppercase text-sm">
+          <div className="max-w-2xl space-y-4">
+            <span className="uppercase-label flex items-center gap-3">
+              <span className="w-6 h-px bg-[var(--color-border-strong)]" />
               Timeline
-            </p>
+            </span>
             <h1 className="text-headline">News</h1>
             <p className="text-body-lg">
               A timeline of milestones, achievements, and key moments in my
@@ -25,17 +35,51 @@ function NewsPage() {
         </div>
       </section>
 
+      {/* Divider */}
+      <div className="container">
+        <hr className="section-divider" />
+      </div>
+
       {/* Timeline */}
-      <section className="section pt-0">
+      <section className="section pt-8">
         <div className="container">
-          <div className="max-w-2xl mx-auto">
-            {newsItems.map((item, index) => (
-              <NewsCard
-                key={item.id}
-                item={item}
-                isLast={index === newsItems.length - 1}
-              />
-            ))}
+          <div className="max-w-2xl">
+            <div 
+              ref={timelineRef}
+              className="card p-6 sm:p-8"
+            >
+              <div className="relative">
+                {/* Static timeline line */}
+                <div 
+                  className="absolute left-2 w-px bg-[var(--color-border)]"
+                  style={{
+                    top: '0.375rem',
+                    bottom: '0.375rem',
+                  }}
+                />
+                
+                {/* Animated progress line */}
+                <motion.div
+                  className="absolute left-2 w-px bg-[var(--color-primary)] origin-top"
+                  style={{ 
+                    top: '0.375rem',
+                    bottom: '0.375rem',
+                    scaleY: scrollYProgress,
+                  }}
+                />
+                
+                {newsItems.map((item, index) => (
+                  <NewsCard
+                    key={item.id}
+                    item={item}
+                    isLast={index === newsItems.length - 1}
+                    index={index}
+                    totalItems={newsItems.length}
+                    scrollProgress={scrollYProgress}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>

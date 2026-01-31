@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 import Lenis from 'lenis'
 
 import Header from '../components/Header'
+import Footer from '../components/Footer'
 
 import appCss from '../styles.css?url'
 
@@ -66,7 +67,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <Header />
-        {children}
+        <div className="min-h-screen">
+          {children}
+        </div>
+        <Footer />
         <TanStackDevtools
           config={{
             position: 'bottom-right',

@@ -13,7 +13,7 @@ export function VisualGrid({ className = '' }: VisualGridProps) {
           {Array.from({ length: 12 }).map((_, i) => (
             <div
               key={i}
-              className="h-full border-l border-white/2 last:border-r"
+              className="h-full border-l border-white/[0.02] last:border-r"
             />
           ))}
         </div>
