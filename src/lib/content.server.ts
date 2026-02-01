@@ -150,8 +150,8 @@ export const getHomePageData = createServerFn({ method: 'GET' })
           ? data.affiliations.map((a: any) => ({
               id: a._id,
               name: a.name,
-              logoUrl: a.logoUrl || '/old-images/placeholder.png',
-              url: a.url,
+              logoUrl: a.logoUrl || null,
+              url: a.url || null,
             }))
           : defaultAffiliations,
         recentNews: data.recentNews?.map((item: any) => ({
@@ -206,10 +206,10 @@ export const getPostsPageData = createServerFn({ method: 'GET' })
             excerpt: post.excerpt,
             content: post.content,
             date: post.date,
-            image: post.image,
-            imageAlt: post.imageAlt,
-            tags: post.tags,
-            links: post.links,
+            image: post.image || null,
+            imageAlt: post.imageAlt || null,
+            tags: post.tags || [],
+            links: post.links || [],
           })),
         }
       }
@@ -248,10 +248,10 @@ export const getPostById = createServerFn({ method: 'GET' })
           excerpt: postData.excerpt,
           content: postData.content,
           date: postData.date,
-          image: postData.image,
-          imageAlt: postData.imageAlt,
-          tags: postData.tags,
-          links: postData.links,
+          image: postData.image || null,
+          imageAlt: postData.imageAlt || null,
+          tags: postData.tags || [],
+          links: postData.links || [],
         }
       }
     } catch (error) {
