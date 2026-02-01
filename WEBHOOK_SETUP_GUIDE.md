@@ -1,68 +1,110 @@
-# Cloudflare Deploy Webhook Setup Guide
+# Cloudflare Workers Deploy Webhook Setup Guide
 
 This guide walks you through setting up automatic deployments when content is published in Sanity CMS.
 
 ## Overview
 
-When Sara publishes content changes in Sanity Studio, a webhook will automatically trigger a rebuild of the site on Cloudflare Pages. This ensures the live site stays in sync with the CMS without manual deployments.
+When Sara publishes content changes in Sanity Studio, a webhook triggers a GitHub Actions workflow that rebuilds and deploys the site to Cloudflare Workers. This ensures the live site stays in sync with the CMS without manual deployments.
 
-## Step 1: Create Deploy Hook in Cloudflare
+**Flow:**
+```
+Sanity Publish → GitHub webhook → GitHub Actions → Cloudflare Workers
+```
 
-1. **Log in to Cloudflare Dashboard**
+## Prerequisites
+
+Before starting, you need:
+1. Access to the GitHub repository
+2. Access to the Sanity project (https://www.sanity.io/manage/project/7lwqqklw)
+3. Cloudflare account credentials
+
+## Step 1: Set Up GitHub Secrets
+
+1. **Go to GitHub Repository Settings**
+   - Navigate to your repository: https://github.com/mo-shawa/saraelshawa
+   - Click **Settings** → **Secrets and variables** → **Actions**
+
+2. **Add Cloudflare Secrets**
+   
+   Click **"New repository secret"** and add these:
+
+   | Secret Name | Description | How to Get |
+   |-------------|-------------|------------|
+   | `CLOUDFLARE_API_TOKEN` | API token for deployments | See "Getting Cloudflare API Token" below |
+   | `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare account ID | Found in Cloudflare dashboard URL or API settings |
+
+3. **Getting Cloudflare API Token**
+   - Go to https://dash.cloudflare.com/profile/api-tokens
+   - Click **"Create Token"**
+   - Use the **"Edit Cloudflare Workers"** template
+   - Or create custom token with these permissions:
+     - Account: Workers Scripts: Edit
+     - Zone: Workers Routes: Edit (if using custom domain)
+   - Copy the token immediately (it's only shown once)
+
+4. **Getting Account ID**
    - Go to https://dash.cloudflare.com
+   - Click on your account
+   - The Account ID is in the right sidebar under "API" section
+   - Or find it in the URL: `https://dash.cloudflare.com/ACCOUNT_ID_HERE`
 
-2. **Navigate to Your Pages Project**
-   - Click on "Workers & Pages" in the left sidebar
-   - Find and click on your project (likely named `saraelshawa`)
+## Step 2: Create GitHub Personal Access Token for Sanity
 
-3. **Create Deploy Hook**
-   - Go to **Settings** → **Builds & deployments**
-   - Scroll down to the **Deploy hooks** section
-   - Click **"Add deploy hook"**
+1. **Go to GitHub Settings**
+   - Navigate to https://github.com/settings/tokens
+   - Click **"Generate new token (classic)"**
 
-4. **Configure the Hook**
-   - **Name:** `Sanity CMS`
-   - **Branch:** `main` (or your production branch)
-   - Click **"Save"**
+2. **Configure the Token**
+   | Field | Value |
+   |-------|-------|
+   | **Note** | `Sanity CMS Deploy Webhook` |
+   | **Expiration** | Set a reasonable expiration (e.g., 1 year) |
+   | **Scopes** | Select only `repo` (Full control of private repositories) |
 
-5. **Copy the Webhook URL**
-   - You'll receive a webhook URL that looks like:
-     ```
-     https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-     ```
-   - **Copy this URL** - you'll need it in Step 2
+3. **Generate and Copy the Token**
+   - Click **"Generate token"**
+   - **Copy the token immediately** - you won't see it again!
+   - Save it somewhere secure for the next step
 
-## Step 2: Add Webhook to Sanity
+## Step 3: Add Webhook to Sanity
 
 1. **Open Sanity Project Dashboard**
-   - Go to https://www.sanity.io/manage/project/7lwqqklw/api
-   - Log in with the Google account that has access to the Sanity project
+   - Go to https://www.sanity.io/manage/project/7lwqqklw
+   - Click **"API"** in the left sidebar
+   - Click **"Webhooks"** tab
 
 2. **Create New Webhook**
-   - Click on the **"Webhooks"** tab in the left sidebar
-   - Click **"Create webhook"** (or **"+ Add webhook"**)
+   - Click **"Create webhook"** or **"+ Add webhook"**
 
 3. **Configure the Webhook**
-   Fill in the following settings:
 
    | Field | Value |
    |-------|-------|
-   | **Name** | `Cloudflare Deploy` |
-   | **URL** | Paste the Cloudflare webhook URL from Step 1 |
+   | **Name** | `GitHub Deploy` |
+   | **URL** | `https://api.github.com/repos/mo-shawa/saraelshawa/dispatches` |
    | **Dataset** | `production` |
-   | **Trigger on** | Select all: `Create`, `Update`, `Delete` |
-   | **Filter** | Leave empty (triggers on all document types) |
-   | **Projection** | `{}` |
+   | **Trigger on** | Select: `Create`, `Update`, `Delete` |
+   | **Filter** | Leave empty (or use filter below) |
+   | **Projection** | `{"event_type": "sanity-content-update"}` |
    | **HTTP method** | `POST` |
-   | **HTTP Headers** | Leave empty (Cloudflare doesn't require auth) |
-   | **API version** | Use latest (default) |
-   | **Include drafts** | Unchecked (only trigger on published documents) |
+   | **HTTP Headers** | See below |
+   | **Secret** | Leave empty |
+   | **Include drafts** | ❌ Unchecked |
 
-4. **Save the Webhook**
+4. **Add HTTP Headers**
+   
+   Click **"Add header"** and add these two headers:
+
+   | Header | Value |
+   |--------|-------|
+   | `Authorization` | `Bearer YOUR_GITHUB_TOKEN` (from Step 2) |
+   | `Accept` | `application/vnd.github.v3+json` |
+   | `Content-Type` | `application/json` |
+
+5. **Save the Webhook**
    - Click **"Save"**
-   - You should see the webhook appear in the list
 
-## Step 3: Test the Webhook
+## Step 4: Test the Webhook
 
 1. **Make a Small Change in Sanity Studio**
    - Go to https://saraelshawa.sanity.studio
@@ -70,19 +112,28 @@ When Sara publishes content changes in Sanity Studio, a webhook will automatical
    - Click **"Publish"**
 
 2. **Verify Webhook Triggered**
-   - In Sanity dashboard (https://www.sanity.io/manage/project/7lwqqklw/api)
-   - Click on your webhook → **"Logs"** or **"Recent deliveries"**
-   - You should see a successful POST request (status 200)
+   - In Sanity dashboard → Webhooks → Your webhook → **"Logs"**
+   - You should see a successful POST request (status 204)
 
-3. **Verify Cloudflare Deployment**
-   - Go to your Cloudflare Pages project
-   - Check **"Deployments"** tab
-   - You should see a new deployment in progress or completed
-   - Wait 1-2 minutes for the build to complete
+3. **Verify GitHub Actions Started**
+   - Go to https://github.com/mo-shawa/saraelshawa/actions
+   - You should see a new workflow run in progress
+   - The trigger should show "repository_dispatch"
 
-4. **Verify Changes on Live Site**
-   - Visit your production site
-   - The changes you made should appear after the deployment completes
+4. **Verify Deployment Completed**
+   - Wait for the workflow to complete (usually 1-2 minutes)
+   - Check the workflow logs for success
+   - Visit https://saraelshawa.icy-heart-96a5.workers.dev to verify changes
+
+## Optional: Filter Webhook by Document Type
+
+To only trigger rebuilds for specific document types, add this filter:
+
+```groq
+_type in ["post", "newsItem", "heroSettings", "aboutSettings", "siteSettings", "affiliation"]
+```
+
+This prevents rebuilds when non-critical documents are changed.
 
 ## Troubleshooting
 
@@ -90,89 +141,75 @@ When Sara publishes content changes in Sanity Studio, a webhook will automatical
 
 **Check Sanity Webhook Logs:**
 1. Go to https://www.sanity.io/manage/project/7lwqqklw/api
-2. Click on your webhook
-3. Check the "Logs" or "Recent deliveries" tab
-4. Look for error messages
+2. Click on your webhook → **"Logs"**
+3. Look for error messages
 
 **Common Issues:**
-- **URL is incorrect:** Double-check the Cloudflare webhook URL
-- **"Include drafts" is checked:** Only published documents should trigger rebuilds
-- **Webhook is disabled:** Make sure the webhook is enabled in Sanity
+| Error | Solution |
+|-------|----------|
+| 401 Unauthorized | Check GitHub token is correct in Authorization header |
+| 404 Not Found | Verify repository URL is correct |
+| 422 Unprocessable | Check the projection is valid JSON |
 
-### Deployment Not Starting
+### GitHub Actions Not Running
 
-**Check Cloudflare Deploy Hooks:**
-1. Go to Cloudflare Pages → Settings → Builds & deployments
-2. Verify the deploy hook exists and is active
-3. Check that the branch name matches your production branch
+**Check:**
+1. Go to GitHub → Actions tab
+2. Verify the workflow file exists at `.github/workflows/deploy.yml`
+3. Make sure actions are enabled for the repository
 
-**Test Manually:**
-```bash
-# Test the webhook with curl
-curl -X POST "YOUR_CLOUDFLARE_WEBHOOK_URL"
-```
-
-If the manual curl triggers a deployment but Sanity doesn't, the issue is with the Sanity webhook configuration.
+**Test with Manual Trigger:**
+1. Go to Actions → "Deploy to Cloudflare Workers"
+2. Click **"Run workflow"**
+3. Select branch and click **"Run workflow"**
 
 ### Deployment Failing
 
 **Check Build Logs:**
-1. Go to Cloudflare Pages → Deployments
-2. Click on the failed deployment
-3. Review the build logs for errors
+1. Go to GitHub → Actions
+2. Click on the failed run
+3. Check the logs for each step
 
-**Common Build Issues:**
-- **Missing environment variables:** Make sure `SANITY_PROJECT_ID`, `SANITY_DATASET`, and `SANITY_API_TOKEN` are set in Cloudflare Pages
-- **Build command issues:** Verify the build command is correct (usually `npm run build` or `npm run pages:deploy`)
+**Common Issues:**
+| Error | Solution |
+|-------|----------|
+| `CLOUDFLARE_API_TOKEN` not found | Add secret in repository settings |
+| Build errors | Check npm ci and build steps |
+| Wrangler errors | Verify Cloudflare credentials |
 
-## Environment Variables in Cloudflare
+## Manual Deployment
 
-Make sure these environment variables are set in your Cloudflare Pages project:
+If webhook fails, you can always deploy manually:
 
-1. Go to **Settings** → **Environment variables**
-2. Add the following variables (for **Production** environment):
+**Option 1: GitHub Actions UI**
+1. Go to Actions tab
+2. Select "Deploy to Cloudflare Workers"
+3. Click "Run workflow"
 
-| Variable | Value |
-|----------|-------|
-| `SANITY_PROJECT_ID` | `7lwqqklw` |
-| `SANITY_DATASET` | `production` |
-| `SANITY_API_TOKEN` | `skKFXlRxphZNk...` (get from `.env` file) |
+**Option 2: Command Line**
+```bash
+npm run deploy
+```
 
-**Note:** After adding environment variables, you need to trigger a new deployment for them to take effect.
+## Security Notes
 
-## Advanced Configuration
+1. **Keep tokens secure** - Never commit tokens to the repository
+2. **Use minimal permissions** - GitHub token only needs `repo` scope
+3. **Rotate tokens periodically** - Set reminders to regenerate tokens before expiration
+4. **Monitor webhook logs** - Check Sanity logs for unauthorized attempts
 
-### Debouncing (Prevent Rapid Rebuilds)
+## Summary
 
-If you're making multiple quick edits, you might want to debounce the webhook to prevent excessive rebuilds:
-
-**Option 1: Manual Trigger**
-- Remove the automatic webhook
-- Use Cloudflare's deploy hook URL manually when ready to publish
-- Access from: Settings → Builds & deployments → Deploy hooks
-
-**Option 2: Sanity Webhook Filtering**
-- Add a filter to only trigger on specific document types:
-  ```groq
-  _type in ["post", "newsItem", "heroSettings", "aboutSettings"]
-  ```
-
-**Option 3: Third-party Service**
-- Use a service like Zapier or Pipedream to debounce webhook calls
-- Delay rebuilds by 5-10 minutes after the last edit
-
-## Next Steps
-
-Once the webhook is set up and tested:
-
-1. ✅ Sara can now edit content directly in Sanity Studio
-2. ✅ Changes automatically deploy to production
-3. ✅ No developer intervention needed for content updates
+Once setup is complete:
+- ✅ Content changes in Sanity automatically trigger deployments
+- ✅ GitHub Actions handles the build and deploy process
+- ✅ Site updates within 1-2 minutes of publishing
+- ✅ No manual intervention needed for content updates
 
 ## Support
 
 If you encounter issues:
-- Check webhook logs in Sanity dashboard
-- Check deployment logs in Cloudflare dashboard
-- Review this guide's troubleshooting section
-- Contact the developer if issues persist
+1. Check Sanity webhook logs
+2. Check GitHub Actions logs
+3. Review this guide's troubleshooting section
+4. Contact the developer if issues persist

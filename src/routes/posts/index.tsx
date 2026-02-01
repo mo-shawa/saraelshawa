@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import PostCard from '../../components/PostCard'
-import { getPostsPageData } from '../../lib/content'
+import { getPostsPageData } from '../../lib/content.server'
 import type { PostsPageData } from '../../lib/content-types'
 
 export const Route = createFileRoute('/posts/')({

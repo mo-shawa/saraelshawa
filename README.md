@@ -2,7 +2,7 @@
 
 A modern, performant portfolio website built with TanStack Start and powered by Sanity CMS.
 
-**Live Site:** TBD  
+**Live Site:** https://saraelshawa.icy-heart-96a5.workers.dev  
 **CMS:** https://saraelshawa.sanity.studio
 
 ## ✨ Features
@@ -62,7 +62,7 @@ Comprehensive guides are available in the project root:
 - **Framework:** [TanStack Start](https://tanstack.com/start)
 - **CMS:** [Sanity](https://www.sanity.io)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com)
-- **Deployment:** [Cloudflare Pages/Workers](https://pages.cloudflare.com)
+- **Deployment:** [Cloudflare Workers](https://workers.cloudflare.com)
 - **Language:** TypeScript
 
 ## 📦 Available Commands

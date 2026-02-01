@@ -2,13 +2,13 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
 import { PortableText } from '@portabletext/react'
-import { getPostById } from '../../lib/content'
+import { getPostById } from '../../lib/content.server'
 import type { Post } from '../../lib/content-types'
 
 export const Route = createFileRoute('/posts/$postId')({
   component: PostDetailPage,
   loader: async ({ params }) => {
-    return await getPostById(params.postId)
+    return await getPostById({ data: params.postId })
   },
 })
 

@@ -6,15 +6,15 @@ import imageUrlBuilder from '@sanity/image-url'
 const SANITY_PROJECT_ID = '7lwqqklw'
 const SANITY_DATASET = 'production'
 
-// Sanity client for fetching content at build time
-// This client is used during SSG/SSR, NOT in the browser
+// Sanity client for fetching content
+// Using CDN for faster cached responses
 export const sanityClient = createClient({
   projectId: SANITY_PROJECT_ID,
   dataset: SANITY_DATASET,
   apiVersion: '2024-01-01',
-  // useCdn: false for build time to always get fresh content
-  // The site is statically generated, so this only runs at build time
-  useCdn: false,
+  // Use CDN for cached, faster responses
+  // Content updates may take a few minutes to propagate
+  useCdn: true,
   // No token needed for read operations on public datasets
   // Token would only be needed for draft content or mutations
 })

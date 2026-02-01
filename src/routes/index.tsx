@@ -3,7 +3,7 @@ import { useRef, useState } from 'react'
 import { motion, useScroll, useAnimationFrame } from 'framer-motion'
 import Hero from '../components/Hero'
 import NewsCard from '../components/NewsCard'
-import { getHomePageData } from '../lib/content'
+import { getHomePageData } from '../lib/content.server'
 import type { HomePageData, Affiliation, ResearchArea } from '../lib/content-types'
 
 function LogoMarquee({ affiliations }: { affiliations: Affiliation[] }) {

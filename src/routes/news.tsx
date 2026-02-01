@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useRef } from 'react'
 import { motion, useScroll } from 'framer-motion'
 import NewsCard from '../components/NewsCard'
-import { getNewsPageData } from '../lib/content'
+import { getNewsPageData } from '../lib/content.server'
 import type { NewsPageData } from '../lib/content-types'
 
 export const Route = createFileRoute('/news')({
