@@ -91,6 +91,17 @@ Before starting, you need:
    | **Secret** | Leave empty |
    | **Include drafts** | ❌ Unchecked |
 
+   ⚠️ **CRITICAL: Projection Format**
+   
+   The projection field uses GROQ syntax and defines the JSON payload sent to GitHub. You MUST enter it as:
+   ```
+   {"event_type": "sanity-content-update"}
+   ```
+   
+   **If projection is empty or invalid, Sanity sends the full document data**, which causes GitHub to return a 422 error because it only accepts `event_type` and optional `client_payload` keys.
+   
+   **Test your projection:** After saving, publish any document and check the webhook logs. If you see errors about fields like `_id`, `_type`, `email`, etc. being "not permitted keys", the projection is not working correctly.
+
 4. **Add HTTP Headers**
    
    Click **"Add header"** and add these two headers:
@@ -149,7 +160,50 @@ This prevents rebuilds when non-critical documents are changed.
 |-------|----------|
 | 401 Unauthorized | Check GitHub token is correct in Authorization header |
 | 404 Not Found | Verify repository URL is correct |
-| 422 Unprocessable | Check the projection is valid JSON |
+| 422 Unprocessable | See detailed fix below |
+
+### Fix for 422 Error: "X are not permitted keys"
+
+If you see an error like:
+```json
+{
+  "message": "Invalid request.\n\n\"_createdAt\", \"_id\", \"_rev\"... are not permitted keys.\n\"event_type\" wasn't supplied.",
+  "status": "422"
+}
+```
+
+**This means the projection is not working correctly.** Sanity is sending document data instead of just the `event_type`.
+
+**Solutions:**
+
+1. **Double-check the projection field**
+   - Go back to the webhook settings
+   - In the **Projection** field, enter EXACTLY:
+     ```
+     {"event_type": "sanity-content-update"}
+     ```
+   - No extra spaces, no quotes around the whole thing, no line breaks
+   - It must be valid GROQ projection syntax
+
+2. **Test with webhook.site first**
+   - Go to https://webhook.site
+   - Copy the unique URL they give you
+   - Create a test webhook in Sanity with that URL
+   - Publish a document
+   - Check what payload was received on webhook.site
+   - You should see ONLY:
+     ```json
+     {"event_type": "sanity-content-update"}
+     ```
+   - If you see document fields, the projection is wrong
+
+3. **Alternative: Use a serverless function as middleware**
+   If you can't get the projection to work, create a simple Cloudflare Worker that:
+   - Receives the Sanity webhook with full document data
+   - Ignores the body
+   - Calls GitHub's repository dispatch with just `event_type`
+   
+   This bypasses the projection issue entirely.
 
 ### GitHub Actions Not Running
 
