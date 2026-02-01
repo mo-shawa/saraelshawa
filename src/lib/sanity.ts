@@ -1,17 +1,22 @@
 import { createClient } from '@sanity/client'
 import imageUrlBuilder from '@sanity/image-url'
 
+// Sanity configuration - hardcoded for now since env vars don't work reliably in Cloudflare Workers
+// These are public values (except token which is only needed for mutations)
+const SANITY_PROJECT_ID = '7lwqqklw'
+const SANITY_DATASET = 'production'
+
 // Sanity client for fetching content at build time
 // This client is used during SSG/SSR, NOT in the browser
 export const sanityClient = createClient({
-  projectId: process.env.SANITY_PROJECT_ID || '7lwqqklw',
-  dataset: process.env.SANITY_DATASET || 'production',
+  projectId: SANITY_PROJECT_ID,
+  dataset: SANITY_DATASET,
   apiVersion: '2024-01-01',
   // useCdn: false for build time to always get fresh content
   // The site is statically generated, so this only runs at build time
   useCdn: false,
-  // Token is optional but recommended for drafts/preview
-  token: process.env.SANITY_API_TOKEN,
+  // No token needed for read operations on public datasets
+  // Token would only be needed for draft content or mutations
 })
 
 // Helper function to fetch with proper typing

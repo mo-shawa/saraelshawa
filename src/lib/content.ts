@@ -17,10 +17,10 @@ import { sanityFetch } from './sanity'
 import { posts as staticPosts } from '../data/posts'
 import { newsItems as staticNewsItems } from '../data/news'
 
-// Check if Sanity is configured
+// Check if Sanity is configured - always true now since we have hardcoded config
 const isSanityConfigured = () => {
-  const projectId = process.env.SANITY_PROJECT_ID
-  return projectId && projectId !== '7lwqqklw'
+  // Sanity is always configured with the hardcoded project ID
+  return true
 }
 
 // ============================================================================
