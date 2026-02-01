@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import type { Post } from '../data/posts'
+import type { Post } from '../lib/content-types'
 import { ArrowRight } from 'lucide-react'
 
 interface PostCardProps {

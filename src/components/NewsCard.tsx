@@ -1,4 +1,4 @@
-import type { NewsItem } from '../data/news'
+import type { NewsItem } from '../lib/content-types'
 import { ExternalLink } from 'lucide-react'
 import { motion, type MotionValue, useTransform } from 'framer-motion'
 

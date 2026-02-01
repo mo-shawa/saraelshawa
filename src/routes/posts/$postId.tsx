@@ -1,15 +1,38 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getPostById } from '../../data/posts'
 import { Link } from '@tanstack/react-router'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
+import { PortableText } from '@portabletext/react'
+import { getPostById } from '../../lib/content'
+import type { Post } from '../../lib/content-types'
 
 export const Route = createFileRoute('/posts/$postId')({
   component: PostDetailPage,
+  loader: async ({ params }) => {
+    return await getPostById(params.postId)
+  },
 })
 
+// Custom components for PortableText rendering
+const portableTextComponents = {
+  marks: {
+    link: ({ value, children }: any) => {
+      const target = (value?.href || '').startsWith('http') ? '_blank' : undefined
+      return (
+        <a
+          href={value?.href}
+          target={target}
+          rel={target === '_blank' ? 'noopener noreferrer' : undefined}
+          className="text-[var(--color-primary)] hover:opacity-80 transition-opacity"
+        >
+          {children}
+        </a>
+      )
+    },
+  },
+}
+
 function PostDetailPage() {
-  const { postId } = Route.useParams()
-  const post = getPostById(postId)
+  const post = Route.useLoaderData() as Post | null
 
   if (!post) {
     return (
@@ -37,6 +60,9 @@ function PostDetailPage() {
     month: 'short',
     day: 'numeric',
   })
+
+  // Determine if content is Portable Text (array) or HTML (string)
+  const isPortableText = Array.isArray(post.content)
 
   return (
     <main className="min-h-screen bg-[var(--color-bg)] pt-20">
@@ -80,7 +106,7 @@ function PostDetailPage() {
               <div className="mb-8 overflow-hidden border border-[var(--color-border)]">
                 <img
                   src={post.image}
-                  alt={post.title}
+                  alt={post.imageAlt || post.title}
                   className="w-full object-cover"
                 />
               </div>
@@ -95,8 +121,13 @@ function PostDetailPage() {
                 prose-code:font-mono prose-code:text-sm
                 prose-pre:bg-[var(--color-surface)] prose-pre:border prose-pre:border-[var(--color-border)]
               "
-              dangerouslySetInnerHTML={{ __html: post.content }}
-            />
+            >
+              {isPortableText ? (
+                <PortableText value={post.content} components={portableTextComponents} />
+              ) : (
+                <div dangerouslySetInnerHTML={{ __html: post.content as string }} />
+              )}
+            </div>
 
             {/* Links */}
             {post.links && post.links.length > 0 && (

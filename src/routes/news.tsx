@@ -1,14 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useRef } from 'react'
 import { motion, useScroll } from 'framer-motion'
-import { newsItems } from '../data/news'
 import NewsCard from '../components/NewsCard'
+import { getNewsPageData } from '../lib/content'
+import type { NewsPageData } from '../lib/content-types'
 
 export const Route = createFileRoute('/news')({
   component: NewsPage,
+  loader: async () => {
+    return await getNewsPageData()
+  },
 })
 
 function NewsPage() {
+  const { newsItems } = Route.useLoaderData() as NewsPageData
   const timelineRef = useRef<HTMLDivElement>(null)
   
   const { scrollYProgress } = useScroll({

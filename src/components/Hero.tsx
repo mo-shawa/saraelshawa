@@ -1,7 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
-
-const tags = ['Genomics', 'Neural Data', 'Probabilistic Models', 'Representation Learning']
+import type { HeroSettings } from '../lib/content-types'
 
 // Individual wave component with smooth CSS-based opacity
 function Wave({ delay }: { delay: number }) {
@@ -49,7 +48,26 @@ function Wave({ delay }: { delay: number }) {
   )
 }
 
-export default function Hero() {
+interface HeroProps {
+  settings: HeroSettings
+}
+
+export default function Hero({ settings }: HeroProps) {
+  // Parse subtitle to inject highlighted text
+  const renderSubtitle = () => {
+    if (settings.highlightedText && settings.subtitle.includes(settings.highlightedText)) {
+      const parts = settings.subtitle.split(settings.highlightedText)
+      return (
+        <>
+          {parts[0]}
+          <span className="text-[var(--color-primary)]">{settings.highlightedText}</span>
+          {parts[1]}
+        </>
+      )
+    }
+    return settings.subtitle
+  }
+
   return (
     <section className="relative min-h-[90vh] w-full bg-[var(--color-bg)] pt-20 overflow-hidden">
       {/* Radiating pulse effect - extremely subtle, very slow waves from right */}
@@ -75,7 +93,7 @@ export default function Hero() {
             className="uppercase-label flex items-center gap-3"
           >
             <span className="w-6 h-px bg-[var(--color-border-strong)]" />
-            <span>Computer Science & Biology</span>
+            <span>{settings.label}</span>
           </motion.div>
 
           {/* Name */}
@@ -85,7 +103,7 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-display"
           >
-            Sara El-Shawa
+            {settings.name}
           </motion.h1>
 
           {/* Subtitle */}
@@ -95,9 +113,7 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="text-lg text-[var(--color-text-muted)] max-w-xl leading-relaxed"
           >
-            Researcher at the{' '}
-            <span className="text-[var(--color-primary)]">Vector Institute</span>,
-            applying machine learning to decode biological systems.
+            {renderSubtitle()}
           </motion.p>
 
           {/* Tags */}
@@ -107,7 +123,7 @@ export default function Hero() {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="flex flex-wrap gap-2 pt-2"
           >
-            {tags.map((tag) => (
+            {settings.tags.map((tag) => (
               <span key={tag} className="tag">
                 <span className="tag-prefix">[+]</span>
                 {tag}
@@ -127,17 +143,17 @@ export default function Hero() {
               className="btn btn-outline group"
             >
               <span className="w-4 h-px bg-current group-hover:w-6 transition-all" />
-              Research
+              {settings.ctaResearchLabel}
             </Link>
 
             <a
-              href="/resume.pdf"
+              href={settings.cvFile || '/resume.pdf'}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-ghost"
             >
               <span className="w-3 h-px bg-current" />
-              CV
+              {settings.ctaCvLabel}
             </a>
           </motion.div>
         </div>

@@ -1,12 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { posts } from '../../data/posts'
 import PostCard from '../../components/PostCard'
+import { getPostsPageData } from '../../lib/content'
+import type { PostsPageData } from '../../lib/content-types'
 
 export const Route = createFileRoute('/posts/')({
   component: PostsPage,
+  loader: async () => {
+    return await getPostsPageData()
+  },
 })
 
 function PostsPage() {
+  const { posts } = Route.useLoaderData() as PostsPageData
+
   return (
     <main className="min-h-screen bg-[var(--color-bg)] pt-20">
       {/* Header */}

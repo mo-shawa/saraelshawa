@@ -2,29 +2,16 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 import { motion, useScroll, useAnimationFrame } from 'framer-motion'
 import Hero from '../components/Hero'
-import { newsItems } from '../data/news'
 import NewsCard from '../components/NewsCard'
+import { getHomePageData } from '../lib/content'
+import type { HomePageData, Affiliation, ResearchArea } from '../lib/content-types'
 
-const affiliationLogos = [
-  { src: '/old-images/harvard-logo-transparent.png', alt: 'Harvard University' },
-  { src: '/old-images/stanford_logo.png', alt: 'Stanford University' },
-  { src: '/old-images/1200px-Utoronto_coa.svg_.png', alt: 'University of Toronto' },
-  { src: '/old-images/Tokyo-Universitys-logo..png', alt: 'University of Tokyo' },
-]
-
-const researchAreas = [
-  { label: 'Representation learning', description: 'Discovering meaningful structure in high-dimensional biological data' },
-  { label: 'Causal inference', description: 'Identifying causal relationships in complex systems' },
-  { label: 'Neuro-symbolic systems', description: 'Bridging neural networks with symbolic reasoning' },
-  { label: 'Evolutionary modeling', description: 'Computational approaches to understanding evolution' },
-]
-
-function LogoMarquee() {
+function LogoMarquee({ affiliations }: { affiliations: Affiliation[] }) {
   const [x, setX] = useState(0)
   const speed = 0.3
   const logoWidth = 80
   const gap = 48
-  const setWidth = affiliationLogos.length * (logoWidth + gap)
+  const setWidth = affiliations.length * (logoWidth + gap)
 
   useAnimationFrame(() => {
     setX((prev) => {
@@ -33,7 +20,7 @@ function LogoMarquee() {
     })
   })
 
-  const logos = [...affiliationLogos, ...affiliationLogos, ...affiliationLogos]
+  const logos = [...affiliations, ...affiliations, ...affiliations]
 
   return (
     <div className="marquee">
@@ -44,8 +31,8 @@ function LogoMarquee() {
         {logos.map((logo, i) => (
           <img
             key={i}
-            src={logo.src}
-            alt={logo.alt}
+            src={logo.logoUrl}
+            alt={logo.name}
             className="marquee-logo"
           />
         ))}
@@ -56,10 +43,15 @@ function LogoMarquee() {
 
 export const Route = createFileRoute('/')({
   component: Home,
+  loader: async () => {
+    return await getHomePageData()
+  },
 })
 
 function Home() {
-  const recentNews = newsItems.slice(0, 5)
+  const data = Route.useLoaderData() as HomePageData
+  const { hero, about, affiliations, recentNews } = data
+  
   const timelineRef = useRef<HTMLDivElement>(null)
   
   // Scroll tracking for the timeline section
@@ -70,7 +62,7 @@ function Home() {
 
   return (
     <main>
-      <Hero />
+      <Hero settings={hero} />
 
       {/* About section */}
       <section className="section bg-[var(--color-surface)] border-b border-[var(--color-border)]">
@@ -82,24 +74,21 @@ function Home() {
               <div className="space-y-4">
                 <span className="uppercase-label flex items-center gap-3">
                   <span className="w-6 h-px bg-[var(--color-border-strong)]" />
-                  Background
+                  {about.sectionLabel}
                 </span>
                 <h2 className="text-headline">
-                  Bridging Computer Science & Biology
+                  {about.headline}
                 </h2>
               </div>
 
               {/* Description */}
               <p className="text-body-lg border-l border-[var(--color-border)] pl-6">
-                My research focuses on applying machine learning and computational
-                methods to understand complex biological systems. From evolutionary
-                genomics to cognitive neuroscience, I explore the intersection of
-                computation and life sciences.
+                {about.description}
               </p>
 
               {/* Research areas */}
               <div className="space-y-3">
-                {researchAreas.map((area) => (
+                {about.researchAreas.map((area: ResearchArea) => (
                   <div key={area.label} className="feature-item">
                     <span>
                       <span className="feature-label">{area.label}</span>
@@ -115,7 +104,7 @@ function Home() {
               {/* Affiliations card */}
               <div className="card p-6">
                 <span className="uppercase-label mb-4 block">Affiliations</span>
-                <LogoMarquee />
+                <LogoMarquee affiliations={affiliations} />
               </div>
 
               {/* Approach card */}
@@ -124,10 +113,9 @@ function Home() {
                   <span className="uppercase-label">Approach</span>
                   <span className="w-2 h-2 bg-[var(--color-primary)] rounded-full" />
                 </div>
-                <h3 className="text-title mb-2">Interpretable ML</h3>
+                <h3 className="text-title mb-2">{about.approachTitle}</h3>
                 <p className="text-body">
-                  Building models that are rigorous, transparent, and aligned with
-                  biological mechanisms.
+                  {about.approachDescription}
                 </p>
               </div>
             </div>
