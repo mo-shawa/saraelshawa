@@ -65,8 +65,21 @@ function Home() {
       <Hero settings={hero} />
 
       {/* About section */}
-      <section className="section bg-[var(--color-surface)] border-b border-[var(--color-border)]">
-        <div className="container">
+      <section
+        className="section relative z-10 -mt-32 border-b border-[var(--color-border)]"
+        style={{
+          background: 'none',
+          paddingTop: 'calc(var(--space-xl) + 8rem)',
+        }}
+      >
+        <div
+          className="absolute inset-x-0 top-0 h-full pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(to bottom, rgba(20,20,20,0) 0px, var(--color-surface) 8rem, var(--color-surface) 100%)',
+          }}
+        />
+        <div className="container relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
             {/* Left column - Main content */}
             <div className="lg:col-span-7 space-y-8">

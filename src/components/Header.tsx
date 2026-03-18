@@ -13,7 +13,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <header className="header">
+    <header className="header header-glass">
       <div className="container">
         <div className="header-inner">
           {/* Logo */}
@@ -54,7 +54,7 @@ export default function Header() {
 
       {/* Mobile Navigation */}
       <nav
-        className={`md:hidden absolute top-full left-0 right-0 bg-[var(--color-bg)] border-b border-[var(--color-border)] transition-all duration-200 ${
+        className={`md:hidden absolute top-full left-0 right-0 border-b border-[var(--color-border)] bg-[rgba(20,20,20,0.24)] backdrop-blur-md transition-all duration-200 ${
           isOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
         }`}
       >
